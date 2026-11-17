@@ -7,7 +7,7 @@ export function fake_dns_domains(fakedns) {
     for (let f in fakedns) {
         push(domains, ...f["fake_dns_domain_names"]);
     }
-    if (length(domains) == 0) {
+    if (length(domains) === 0) {
         return [];
     }
     return [
@@ -64,7 +64,7 @@ export function fake_dns_conf(proxy) {
             "poolSize": int(proxy.pool_v4_size) || 65535
         },
         {
-            "ipPool": proxy.pool_v6 || "fc00::/18",
+            "ipPool": proxy.pool_v6 || "2001:2::/48",
             "poolSize": int(proxy.pool_v6_size) || 65535
         }
     ];

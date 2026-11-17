@@ -38,7 +38,7 @@ Fork this repository and:
 
 * Create a release by pushing a tag
 * Wait until actions finish
-* Use `opkg -i *` to install both ipks from Releases.
+* Use `opkg -i *` to install all ipks from Releases.
 
 ## Enable preview app
 
@@ -48,6 +48,18 @@ Some features are deprecated / unstable so they are placed in preview app. To en
 * Reboot your router
 * There will be a new menu option `Xray (preview)` in `Services`
 
+## Changelog since 3.7.0
+
+* 2026-01-14 chore: bump version
+* 2026-01-26 fix: typos and hysteria version check; bump version to 3.7.1
+* 2026-04-28 feat: enhance build workflow with multiple SDK versions and improved file handling
+* 2026-05-18 chore: adapt for legacy reverse deprecation
+* 2026-05-19 feat: Ping response for FakeDNS pools
+* 2026-05-25 feat: add Cloudflare Origin RSA CA
+* 2026-06-13 chore: change default FakeDNS IPv6 pool for Dnsmasq 2.93; fix typos
+* 2026-07-14 fix: bypass replies to inbound connections
+* 2026-09-08 fix: adapt for Xray 26.9.8; bump version to 3.7.2
+
 ## Changelog since 3.6.0
 
 * 2025-05-13 feat: geodata reader
@@ -56,6 +68,8 @@ Some features are deprecated / unstable so they are placed in preview app. To en
 * 2025-07-27 fix: dynamic direct: only cover global servers; increase default timeout
 * 2025-08-20 fix: dynamic direct connection tracking
 * 2025-08-26 fix: dnsmasq global integration mode
+* 2026-01-13 feat: vless encryption; minor DNS tweaks; code cleanups
+* 2026-01-14 feat: hysteria outbound
 
 ## Changelog since 3.5.0
 

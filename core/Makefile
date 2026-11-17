@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-xray
-PKG_VERSION:=3.6.1
+PKG_VERSION:=3.7.2
 PKG_RELEASE:=1
 
 PKG_LICENSE:=MPLv2
@@ -80,6 +80,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/ssl/certs
 ifdef CONFIG_PACKAGE_XRAY_INCLUDE_CLOUDFLARE_ORIGIN_ROOT_CA
 	$(INSTALL_DATA) ./root/etc/ssl/certs/origin_ca_ecc_root.pem $(1)/etc/ssl/certs/origin_ca_ecc_root.pem
+	$(INSTALL_DATA) ./root/etc/ssl/certs/origin_ca_rsa_root.pem $(1)/etc/ssl/certs/origin_ca_rsa_root.pem
 endif
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./root/etc/init.d/xray_core $(1)/etc/init.d/xray_core
@@ -139,6 +140,7 @@ endif
 	$(INSTALL_DATA) ./root/usr/share/xray/feature/system.mjs $(1)/usr/share/xray/feature/system.mjs
 	$(INSTALL_DIR) $(1)/usr/share/xray/protocol
 	$(INSTALL_DATA) ./root/usr/share/xray/protocol/shadowsocks.mjs $(1)/usr/share/xray/protocol/shadowsocks.mjs
+	$(INSTALL_DATA) ./root/usr/share/xray/protocol/hysteria.mjs $(1)/usr/share/xray/protocol/hysteria.mjs
 	$(INSTALL_DATA) ./root/usr/share/xray/protocol/trojan.mjs $(1)/usr/share/xray/protocol/trojan.mjs
 	$(INSTALL_DATA) ./root/usr/share/xray/protocol/vless.mjs $(1)/usr/share/xray/protocol/vless.mjs
 	$(INSTALL_DATA) ./root/usr/share/xray/protocol/vmess.mjs $(1)/usr/share/xray/protocol/vmess.mjs

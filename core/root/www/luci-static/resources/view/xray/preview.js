@@ -17,6 +17,7 @@ return view.extend({
         s.anonymous = true;
 
         s.tab("dns_hijack", _("DNS Hijacking"));
+        s.taboption('dns_hijack', form.Flag, 'align_fast_dns_to_geoip_direct', _('Align Fast DNS & GeoIP Direct'), _("Return only IP addresses from GeoIP Direct List for Fast DNS."));
 
         let dnsmasq_integration_mode = s.taboption('dns_hijack', form.ListValue, 'dnsmasq_integration_mode', _('Dnsmasq Integration Mode'), _('Per Instance mode requires OpenWrt 24.10 or later versions.'));
         dnsmasq_integration_mode.value("global", _("Global"));
@@ -62,6 +63,9 @@ return view.extend({
         let ttl_override_bypass_ports = s.taboption('firewall', form.DynamicList, 'ttl_override_bypass_ports', _('Ports to bypass TTL override'), _("Do not override TTL for packets with these destination TCP / UDP ports."));
         ttl_override_bypass_ports.datatype = 'port';
 
+        s.taboption('firewall', form.Flag, 'fakedns_ping_response_prerouting', _('FakeDNS Ping (LAN)'), _('Respond to ICMP echo requests from LAN clients for FakeDNS address pools.'));
+        s.taboption('firewall', form.Flag, 'fakedns_ping_response_output', _('FakeDNS Ping (Local)'), _('Respond to ICMP echo requests from this router for FakeDNS address pools.'));
+
         s.tab("sniffing", _("Sniffing"));
 
         s.taboption('sniffing', form.Flag, 'tproxy_sniffing', _('Enable Sniffing'), _('Route requests according to domain settings in "DNS Settings" tab in core settings. Deprecated; use FakeDNS instead.'));
@@ -72,11 +76,18 @@ return view.extend({
         let direct_bittorrent = s.taboption('sniffing', form.Flag, 'direct_bittorrent', _('Bittorrent Direct'), _("If enabled, no bittorrent request will be forwarded through Xray."));
         direct_bittorrent.depends("tproxy_sniffing", "1");
 
+        let routing_domain_strategy = s.taboption('sniffing', form.ListValue, 'routing_domain_strategy', _('Routing Domain Strategy'), _("Domain resolution strategy when matching domain against rules. (For tproxy, this is effective only when sniffing is enabled.)"));
+        routing_domain_strategy.value("AsIs", "AsIs");
+        routing_domain_strategy.value("IPIfNonMatch", "IPIfNonMatch");
+        routing_domain_strategy.value("IPOnDemand", "IPOnDemand");
+        routing_domain_strategy.depends("tproxy_sniffing", "1");
+        routing_domain_strategy.default = "AsIs";
+
         s.tab('dynamic_direct', _('Dynamic Direct'));
 
         s.taboption('dynamic_direct', form.Flag, 'dynamic_direct_tcp4', _('Enable for IPv4 TCP'), _("This should improve performance with large number of connections."));
-        s.taboption('dynamic_direct', form.Flag, 'dynamic_direct_tcp6', _('Enable for IPv4 UDP'), _("This may cause problems but worth a try."));
-        s.taboption('dynamic_direct', form.Flag, 'dynamic_direct_udp4', _('Enable for IPv6 TCP'), _("This may not be very useful but it should be good enough for a try."));
+        s.taboption('dynamic_direct', form.Flag, 'dynamic_direct_udp4', _('Enable for IPv4 UDP'), _("This may cause problems but worth a try."));
+        s.taboption('dynamic_direct', form.Flag, 'dynamic_direct_tcp6', _('Enable for IPv6 TCP'), _("This may not be very useful but it should be good enough for a try."));
         s.taboption('dynamic_direct', form.Flag, 'dynamic_direct_udp6', _('Enable for IPv6 UDP'), _("This may cause problems and is not very useful at the same time. Not recommended."));
 
         let dynamic_direct_timeout = s.taboption('dynamic_direct', form.Value, 'dynamic_direct_timeout', _('Dynamic Direct Timeout'), _("Larger value consumes more memory and performs generally better. Unit in seconds."));
