@@ -52,7 +52,25 @@ jobs:
             openwrt-${{ matrix.arch }}-${{ env.PACKAGE_NAME }}-
       - name: Install Dependencies
         run: |
-          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ccache gettext libncurses5-dev xsltproc p7zip-full
+          # NOTE: ubuntu-24.04 runners ship uutils coreutils whose `install --version`
+          # does not print "GNU", which makes OpenWrt's prereq-build check
+          # ("Please install GNU 'install'") fail. Install GNU coreutils explicitly
+          # and make sure /usr/bin/install resolves to the GNU one.
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ccache gettext libncurses5-dev xsltproc p7zip-full coreutils
+          # GNU coreutils provides /usr/bin/ginstall; put it first in PATH.
+          if [ -x /usr/bin/ginstall ]; then
+            echo "/usr/bin" > /tmp/gnu-bin-path
+            sudo mkdir -p /usr/local/bin && sudo ln -sf /usr/bin/ginstall /usr/local/bin/install
+          elif [ -x /usr/bin/install ] && /usr/bin/install --version | grep -q GNU; then
+            sudo mkdir -p /usr/local/bin && sudo ln -sf /usr/bin/install /usr/local/bin/install
+          fi
+          if ! install --version | grep -q GNU; then
+            echo "::error::GNU install not available on runner"
+            ls -la /usr/bin/install /usr/bin/ginstall /usr/local/bin/install 2>&1 || true
+            install --version || true
+            exit 1
+          fi
+          install --version | head -1
       - name: Create Directories
         run: |
           CACHE_DIR_SDK="$(eval echo "$CACHE_DIR/sdk")"
@@ -107,8 +125,6 @@ jobs:
       - name: Build Packages
         run: |
           cd "$SDK_HOME"
-          which -a install || true
-          install --version | head -2 || true
           make defconfig FORCE=1
           make package/${PACKAGE_NAME}/status/{clean,compile} V=s FORCE=1
           find "$SDK_HOME/bin/" -type f -name "*.ipk" -exec ls -lh {} \;
