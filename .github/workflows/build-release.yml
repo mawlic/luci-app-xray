@@ -109,8 +109,8 @@ jobs:
           cd "$SDK_HOME"
           which -a install || true
           install --version | head -2 || true
-          FORCE=1 make defconfig
-          make package/${PACKAGE_NAME}/status/{clean,compile} V=s
+          make defconfig FORCE=1
+          make package/${PACKAGE_NAME}/status/{clean,compile} V=s FORCE=1
           find "$SDK_HOME/bin/" -type f -name "*.ipk" -exec ls -lh {} \;
           cd -
       - name: Copy Bin Files
