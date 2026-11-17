@@ -56,21 +56,25 @@ jobs:
           # does not print "GNU", which makes OpenWrt's prereq-build check
           # ("Please install GNU 'install'") fail. Install GNU coreutils explicitly
           # and make sure /usr/bin/install resolves to the GNU one.
-          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ccache gettext libncurses5-dev xsltproc p7zip-full coreutils
-          # GNU coreutils provides /usr/bin/ginstall; put it first in PATH.
-          if [ -x /usr/bin/ginstall ]; then
-            echo "/usr/bin" > /tmp/gnu-bin-path
-            sudo mkdir -p /usr/local/bin && sudo ln -sf /usr/bin/ginstall /usr/local/bin/install
-          elif [ -x /usr/bin/install ] && /usr/bin/install --version | grep -q GNU; then
-            sudo mkdir -p /usr/local/bin && sudo ln -sf /usr/bin/install /usr/local/bin/install
-          fi
-          if ! install --version | grep -q GNU; then
-            echo "::error::GNU install not available on runner"
-            ls -la /usr/bin/install /usr/bin/ginstall /usr/local/bin/install 2>&1 || true
-            install --version || true
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y ccache gettext libncurses5-dev xsltproc p7zip-full
+          # ubuntu-24.04 runners ship uutils coreutils (/usr/bin/install -> cargo coreutils);
+          # OpenWrt prereq-build checks `install --version | grep GNU` and fails on uutils.
+          # Unpack the official gnu-coreutils deb and expose its GNU install as /usr/local/bin/install.
+          set -e
+          GNU_DEB_URL="http://archive.ubuntu.com/ubuntu/pool/main/c/coreutils/gnu-coreutils_9.10-1ubuntu2_amd64.deb"
+          curl -fsSL -o /tmp/gnu-coreutils.deb "$GNU_DEB_URL"
+          mkdir -p /tmp/gnu-coreutils && cd /tmp/gnu-coreutils
+          ar x /tmp/gnu-coreutils.deb
+          tar --zstd -xf data.tar.zst
+          sudo mkdir -p /usr/local/bin
+          sudo cp usr/bin/gnuinstall /usr/local/bin/install
+          sudo chmod 0755 /usr/local/bin/install
+          cd "${{ github.workspace }}"
+          /usr/local/bin/install --version | head -1
+          if ! /usr/local/bin/install --version | grep -q GNU; then
+            echo "::error::GNU install shim is not GNU"
             exit 1
           fi
-          install --version | head -1
       - name: Create Directories
         run: |
           CACHE_DIR_SDK="$(eval echo "$CACHE_DIR/sdk")"
