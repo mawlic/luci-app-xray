@@ -19,14 +19,14 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            sdk_url_path: https://downloads.openwrt.org/releases/24.10.0/targets/x86/64
-            sdk_name: -sdk-24.10.0-x86-64_
+            sdk_url_path: https://downloads.openwrt.org/releases/24.10.4/targets/x86/64
+            sdk_name: -sdk-24.10.4-x86-64_
           - arch: armsr_armv8
-            sdk_url_path: https://downloads.openwrt.org/releases/24.10.0/targets/armsr/armv8
-            sdk_name: -sdk-24.10.0-armsr-armv8_
+            sdk_url_path: https://downloads.openwrt.org/releases/24.10.4/targets/armsr/armv8
+            sdk_name: -sdk-24.10.4-armsr-armv8_
           - arch: mediatek_filogic
-            sdk_url_path: https://downloads.openwrt.org/releases/24.10.0/targets/mediatek/filogic
-            sdk_name: -sdk-24.10.0-mediatek-filogic_
+            sdk_url_path: https://downloads.openwrt.org/releases/24.10.4/targets/mediatek/filogic
+            sdk_name: -sdk-24.10.4-mediatek-filogic_
 
     env:
       SDK_URL_PATH: ${{ matrix.sdk_url_path }}
@@ -107,7 +107,9 @@ jobs:
       - name: Build Packages
         run: |
           cd "$SDK_HOME"
-          make defconfig
+          which -a install || true
+          install --version | head -2 || true
+          FORCE=1 make defconfig
           make package/${PACKAGE_NAME}/status/{clean,compile} V=s
           find "$SDK_HOME/bin/" -type f -name "*.ipk" -exec ls -lh {} \;
           cd -
